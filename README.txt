@@ -1,36 +1,29 @@
-(1)	utility_lindo_sovel.py 文件，为使用lindo模型处理复杂模型的子文件，集成处理模型函数和发生内存报错5s后直接跳出的功能函数
-(2)	k_weight_produce.py文件，集成生成决策者k值与k值下权重数据的能力的函数”def  run_expert_simulation()“
--根据五次大循环的要求，生成五次不同k值下对应的权重结果，每个大循环生成200个五决策者的权重数据
--excel文件名称：”simulation_results(i).xlsx“,分析图片名称：”simulation_analysis(i).png“,输出的assessment_array(i).pkl与”k_value(i).pkl“可直接在后面使用。
-
-(3)	H-HFPRs_produce.py文件，基于k_weight_produce.py生成的weights，生成符合的H-HFPRs矩阵，五次循环的数据存储在“table_values_{i}.pkl”与“score_index
-_200_{i}.xlsx”文件中
-
-(4)	trust_ets_produce.py文件，基于k_value(i).pkl结果，生成固定的先验自信与信任、及决策的置信度，用于仿真决策者间相识情况较大的情况，数据存储在“trust_ets_{i}.pkl”与“trust_ets_{i}.xlsx”文件中。
-(5)	trust_ets_produce_random.py文件，基于k_value(i).pkl结果，生成固定的先验自信与自信的置信度，信任随机生成，信任的置信度从更为分散的分布中随机获取，用于仿真决策者间互不相识的情况，数据存储在“trust_ets_random{i}.pkl”与“trust_ets_random{i}.xlsx”文件中。
-(6)	trust_ets_produce_True.py文件，基于k_value(i).pkl结果，从trust_ets_{i}.xlsx与trust_ets_random{i}.xlsx中随机抽取信任与信任的置信度，仿真决策者间随机相识与随机不相识的情况,数据存储在“trust_ets_random{i}.pkl”与“trust_ets_random{i}.xlsx”文件中。
-(7)	trust_ets_none_confi_produce.py文件用于生成不考虑自信的数据，检验若不考虑各决策者的敏感性，结果会发生如何变化。只是在④的基础上，让所有自信度与置信度都为0.9，生成的文件为“trust_ets_none_confi_{i}.pkl”与“trust_ets_none_confi_{i}.xlsx”文件中。
-(8)	Run_simulation_datas.py文件，用于批量处理仿真数据，总共包含四个实验，分别用 flag_test变量表征， flag_test={1，2，3}分别表示：
-实验1：依托于决策者能力，固定先验自信与信任、及决策的置信度。仿真决策者间相互了解。
-实验2：假定决策者间互不相识，固定先验自信与自信置信度，但信任随机抽取，置信度与先验自信挂钩，但通过更分散的分布获取。仿真决策者间互不相识。
-实验3：从实验1与实验2中随机抽取信任与信任的置信度，仿真决策者间随机相识与随机不相识的情况。
-实验4：依托于实验1的结果数据，将自信与置信度全部调整为0.9。仿真不考虑自信调节，使决策者间敏感性相同的情况（类似于传统方法）。
-由于考虑到lindoAPI的解调与内存的影响，因此，需手动设置flag_test=？来确定是第几个实验。保存的结果分别存储在simulation_data文件夹的test1，test2，test3文件夹中。
-break_ij代表因为内存占用原因，而在第一次没有正确抛出答案的仿真数据集合；
-group_weight_name = os.path.join(eval("position"+str(flag_test)),f"group_weight_{flag_test}.pkl")  # 存储最终群共识的权重集合
-group_CI_name = os.path.join(eval("position"+str(flag_test)),f"group_CI_{flag_test}.pkl")  # 存储最终的群决策一致水平结果集合
-group_utility_name = os.path.join(eval("position"+str(flag_test)),f"group_utility_loss_{flag_test}.pkl")  # 存储最终的效用降低水平集合
-GCD_final_name = os.path.join(eval("position"+str(flag_test)),f"GCD_final_name_{flag_test}.pkl")  # 存储最终的群共识集合
-GROUP_H_name = os.path.join(eval("position"+str(flag_test)),f"GROUP_H_name_{flag_test}.pkl")  # 存储最终的群共识矩阵的集合
-DMs_H_name = os.path.join(eval("position"+str(flag_test)),f"DMs_H_{flag_test}.pkl")  # 存储最终各个决策者最终的决策矩阵
-C_T_FINAL_name = os.path.join(eval("position"+str(flag_test)),f"C_T_FINAL_{flag_test}.pkl")  # 存储最终各个决策者间的自信与信任
-break_ij_record_name = os.path.join(eval("position" + str(flag_test)),f"break_ij_{flag_test}.pkl")  # 存储最终各个决策者间的自信与信任
-feedback_Num_{i}表征每次的反馈次数，用于计算该算法的平均耗时。
-(9)	complete_data.py文件，用于补足在Run_simulation_datas.py中未正常跑出结果的数据。需要在Run_simulation_datas.py三个实验都跑完之后，才可以运行。
-(10)	run_sensitive.datas.py是敏感性分析文件，①用于跑出形状参数∈(0,10)（存储在sensibility1文件夹中），②不同GCD阈值的达成时间（存储在sensibility2_blackBox与sensibility2_whiteBox文件夹中），其中，sensibility2_blackBox存储研究模型为达到阈值为0.99，而需要反馈的次数；sensibility2_whiteBox文件存储不考虑不可知信息（即外部奖励）的模型为达到阈值0.99所需要反馈的次数。
-(11)	compare_others_research_Bayes.py是对比分析“A Bayesian Framework For Modelling The Trust  Relationships To Group Decision Making Problems”研究的代码，其主要功能有①将本研究的输入转变为该研究的输入②基于论文方法，针对两种实验背景，对每个实验背景都抽500次的仿真数据，跑出结果（方案权重、反馈次数，群共识度），未选择True，原因在于该文献使用了信任传递理论，对未知信任进行了处理。
-(12)	compare_others_research_person.py是对比分析“Personalized trust incentive mechanisms with personality characteristics for minimum cost consensus in group decision making”研究的代码，其主要功能有①将本研究的输入转变为该研究的输入②基于论文方法，针对三种实验背景，对每个实验背景都抽500次的仿真数据，跑出结果（方案权重、反馈次数，群共识度），未选择True，原因在于该文献使用了信任传递理论，对未知信任进行了处理。
-(13)compare_others_research_consensus.py是对比分析“Consensus adjustment mechanism in view of coalition structure-based cooperative game for group decision making with distribution linguistic preference relations”研究代码，存储在“compare_consensus”文件中，该论文并未考虑信任问题。
-(14)draw_pic文件夹中的所有.py文件都是绘制本研究趋势图的代码
-
-
+The code of " Modeling the Cognitive Black-Box: A Utility-Driven Framework for Fuzzy Group Decision Making via the Dyadic Uncertainty of Self-Confidence and Trust" "Script" is the root folder of the project. Among them, "manus_deal_allCode.py" is the core code of the algorithm, and other .py files are for drawing and data processing.
+Note that "manus_deal_allCode.py" uses the Python API for Lindo, and the optimization model involves 30 global variables and nearly 100 constraint functions, so the commercial "extended" license is used for processing.
+The Data file contains 10000 sets of simulation data. (1) utility_lindo_sovel.py file, which is a subfile for using lindo model to deal with complex models, integrating processing model functions and function functions that jump out directly after 5s memory error occurs (2) k_weight_produce.py file, function "def run_expert_simulation()" that integrates the ability to generate decision making k values and weight data under k values According to the requirements of five large cycles, generate the weight results corresponding to five different k values, and generate the weight data of 200 decision making in each large cycle -excel file name: "simulation_results(i).xlsx", analysis image name: "simulation_analysis(i).png", the output assessment_array(i).pkl and "k_value(i).pkl" can be directly used later.
+(3) H-HFPRs_produce.py file, generate the consistent H-HFPRs matrix based on the weights generated by k_weight_produce.py, and store the data of the five cycles in "table_values_{i}.pkl" and "score_index" 200{i}.xlsx "file
+(4) The trust_ets_produce.py file, based on the k_value(i).PKL result, generates fixed prior self-confidence and trust, as well as the confidence level of decision-making, which is used to simulate the situation where the acquaintance among decision making is relatively large. The data is stored in "trust_ets_{i}.pkl" and "trust_ets_{i}.xlsx" files.
+(5) The trust_ets_produce_random.py file, based on the k_value(i).pkl result, generates fixed prior self-confidence and self-confidence confidence levels. Trust is randomly generated, and the confidence level of trust is randomly obtained from a more dispersed distribution to simulate the situation where decision making do not know each other. The data is stored in "trust_ets_random{i}.pkl" and "trust_ets_random{i}.xlsx" files.
+(6) trust_ets_produce_True.py file, based on the result of k_value(i).pkl, randomly extract trust and trust confidence from trust_ets_{i}.xlsx and trust_ets_random{i}.xlsx, Simulate the situations of random acquaintance and random acquaintance among decision making, and store the data in the files "trust_ets_random{i}.pkl" and "trust_ets_random{i}.xlsx".
+(7) The trust_ets_none_confi_produce.py file is used to generate data without considering self-confidence and to test how the results would change if the sensitivity of each decision making were not taken into account. Just on the basis of ④, set all the confidence and confidence levels to 0.9, and the generated files will be in the "trust_ets_none_confi_{i}.pkl" and "trust_ets_none_confi_{i}.xlsx" files.
+The Run_simulation_datas.py file, which is used to process simulation data in batches, contains a total of four experiments characterized by the flag_test variable, flag_test={1,2,3} :
+Experiment 1: Relying on the decision making's ability, fix the prior self-confidence and trust, as well as the confidence level of decision-making. Simulate mutual understanding among decision making.
+Experiment 2: Assuming that decision making are not acquainted with each other, fixed prior self-confidence and self-confidence confidence levels are set, but trust is randomly selected. The confidence levels are linked to prior self-confidence but obtained through a more dispersed distribution. The simulated decision making do not know each other.
+Experiment 3: Randomly select the confidence levels of trust and trust from Experiment 1 and Experiment 2 to simulate the situations of random acquaintance and random acquaintance among decision making.
+Experiment 4: Based on the result data from Experiment 1, both self-confidence and confidence level were adjusted to 0.9. The simulation does not take into account self-confidence regulation to make the sensitivity among decision making the same (similar to traditional methods).
+Considering the demodulation and memory impact of lindoAPI, it is necessary to manually set flag_test=? To determine which experiment it was. The saved results are stored in the test1, test2, test3 folders of the simulation_data folder, respectively.
+break_ij represents the simulation data set that did not throw the correct answer the first time because of memory usage;
+group_weight_name = os.path.join(eval("position"+str(flag_test)),f"group_weight_{flag_test}.pkl") # Store the set of weights for the final group consensus
+group_CI_name = os.path.join(eval("position"+str(flag_test)),f"group_CI_{flag_test}.pkl") # Store the final set of group decision consensus level results
+group_utility_name = os.path.join(eval("position"+str(flag_test)),f"group_utility_loss_{flag_test}.pkl") # Store the final set of utility reduction levels
+GCD_final_name = os.path.join(eval("position"+str(flag_test)),f"GCD_final_name_{flag_test}.pkl") # Store the final group consensus set
+GROUP_H_name = os.path.join(eval("position"+str(flag_test)),f"GROUP_H_name_{flag_test}.pkl") # Store the set of final group consensus matrices
+DMs_H_name = os.path.join(eval("position"+str(flag_test)),f"DMs_H_{flag_test}.pkl") # stores the final decision matrix of each decision making
+C_T_FINAL_name = os.path.join(eval("position"+str(flag_test))),f"C_T_FINAL_{flag_test}.pkl") # stores the self-confidence and trust among the final decision making
+break_ij_record_name = os.path.join(eval("position" + str(flag_test)),f"break_ij_{flag_test}.pkl") # stores the self-confidence and trust among the final decision making
+feedback_Num_{i} represents the number of feedbacks and is used to calculate the average time of the algorithm.
+The complete_data.py file is used to make up for the data that did not run properly in Run_simulation_datas.py. We need to run all three experiments in Run_simulation_datas.py.
+run_sensitive.datas.py is a sensitivity analysis file, used to run the shape parameter ∈(0,10) (stored in the sensibility1 folder), (2) The reaching time of different GCD thresholds (stored in sensibility2_blackBox and sensibility2_whiteBox folders), where sensibility2_blackBox stores the number of feedback needed for the research model to reach the threshold of 0.99; The sensibility2_whiteBox file stores the number of feedbacks needed to reach a threshold of 0.99 for the model without considering the unknown information (i.e., the external reward).
+(11) compare_others_research_Bayes.py is comparative analysis "A Bayesian Framework For Modelling The Trust Relationships To Group Decision "Making Problems" research code, its main functions are: ① transform the input of this study into the input of this study; ② Based on the method of the paper, for two experimental backgrounds, 500 times of simulation data are extracted for each experimental background, and the results (program weight, feedback times, group consensus degree) are not selected True. The reason is that this literature uses the trust transfer theory, which deals with unknown trust.
+(12) compare_others_research_person.py is a comparative analysis "Personalized trust incentive mechanisms with personality characteristics for minimum cost consensus in group decision making "research code, its main functions are ① to transform the input of this research into the input of this research ② based on the method of the paper, for three kinds of experimental background, the simulation data of each experimental background are drawn 500 times, Out of the results (scheme weight, feedback times, group consensus degree), True was not selected, because the trust transfer theory was used in this literature to deal with unknown trust.
+(13)compare_others_research_consensus.py is a comparative analysis of "Consensus adjustment mechanism in view of coalition structure-based cooperative game for group decision making with distribution linguistic preference relations" Stored in the "compare_consensus" file, the paper does not consider trust issues.
